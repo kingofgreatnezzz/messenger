@@ -3,6 +3,11 @@ import time
 import csv
 import datetime
 import sys
+import os
+from dotenv import load_dotenv
+
+# Load environment variables from config.env file
+load_dotenv('config.env')
 
 # Set expiration date
 EXPIRE_ON = datetime.datetime(2025, 8, 23) # vienti dia pero ahora
@@ -13,12 +18,20 @@ if datetime.datetime.now() > EXPIRE_ON:
     print("⛔ This script has expired. Please contact the developer.")
     sys.exit(1)
 
+# Load configuration from environment variables
+RESEND_API_KEY = os.getenv('RESEND_API_KEY')
+FROM_EMAIL = os.getenv('FROM_EMAIL')
+LOG_FILE = os.getenv('LOG_FILE', 'email_send_log.csv')
+EMAILS_FILE = os.getenv('EMAILS_FILE', 'recipients.txt')
+TEMPLATE_FILE = os.getenv('TEMPLATE_FILE', 'email_template.html')
 
-RESEND_API_KEY = 're_dEQyGG4b_3rTKvQXpY6vYqRXF2RkgAaYB'
-FROM_EMAIL = 'CryptInfo Inc. <noreply@cryptinfo.info>'  # Use your verified sender email here
-LOG_FILE = 'email_send_log.csv'
-EMAILS_FILE = 'recipients.txt'  # Your .txt file with emails, one per line
-TEMPLATE_FILE = 'email_template.html'
+# Validate required environment variables
+if not RESEND_API_KEY:
+    print("❌ Error: RESEND_API_KEY not found in environment variables")
+    sys.exit(1)
+if not FROM_EMAIL:
+    print("❌ Error: FROM_EMAIL not found in environment variables")
+    sys.exit(1)
 
 def send_email(to_email, subject, html_body, retries=3):
     url = "https://api.resend.com/emails"
